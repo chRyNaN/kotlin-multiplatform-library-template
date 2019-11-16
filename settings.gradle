@@ -1,0 +1,3 @@
+rootProject.name = 'library-template' // TODO update rootProject.name
+
+enableFeaturePreview('GRADLE_METADATA')
