@@ -1,0 +1,94 @@
+import com.chrynan.{{project-name}}.buildSrc.LibraryConstants
+
+{{#targetAndroid}}
+apply plugin: "com.android.library"
+{{/targetAndroid}}
+apply plugin: "kotlin-multiplatform"
+apply plugin: "org.jetbrains.dokka"
+apply plugin: "maven-publish"
+
+group LibraryConstants.group
+version LibraryConstants.versionName
+
+kotlin {
+    {{#targetJvm}}
+    jvm()
+    {{/targetJvm}}
+    {{#targetJs}}
+    js()
+    {{/targetJs}}
+    {{#targetIos}}
+    ios()
+    {{/targetIos}}
+    {{#targetAndroid}}
+    android {
+        publishLibraryVariants("release")
+    }
+    {{/targetAndroid}}
+
+    sourceSets {
+        commonMain {
+            dependencies {
+
+            }
+        }
+    }
+}
+
+configurations {
+    compileClasspath
+}
+
+{{#targetAndroid}}
+android {
+    compileSdkVersion LibraryConstants.Android.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion LibraryConstants.Android.minSdkVersion
+        targetSdkVersion LibraryConstants.Android.targetSdkVersion
+        versionCode LibraryConstants.versionCode
+        versionName LibraryConstants.versionName
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile "src/androidMain/AndroidManifest.xml"
+            java.srcDirs = ["src/androidMain/kotlin"]
+            res.srcDirs = ["src/androidMain/res"]
+        }
+    }
+
+    configurations {
+        cleanedAnnotations
+        compile.exclude group: "org.jetbrains", module: "annotations"
+    }
+}
+{{/targetAndroid}}
+
+publishing {
+    repositories {
+        maven {
+            url "https://repo.repsy.io/mvn/chrynan/public"
+
+            credentials {
+                username = project.findProperty("repsyUsername") ?: System.getenv("repsyUsername")
+                password = project.findProperty("repsyToken") ?: System.getenv("repsyToken")
+            }
+        }
+    }
+}
